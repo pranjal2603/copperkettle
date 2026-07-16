@@ -1,0 +1,319 @@
+{% extends "cafe/base.html" %}
+
+{% block title %}Reserve a Table — Copper Kettle{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <div class="section">
+
+        <div class="reservation-layout">
+
+            <!-- =========================
+                 Reservation Form
+            ========================== -->
+
+            <div class="form-card reservation-card">
+
+                <h2 class="section-title">Reserve a Table</h2>
+
+                <form method="post">
+
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                    <div class="form-errors">
+                        {{ form.non_field_errors }}
+                    </div>
+                    {% endif %}
+
+                    <div class="form-group">
+                        <label for="{{ form.name.id_for_label }}">Name</label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <div class="field-error">
+                            {{ form.name.errors|first }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+                            <label for="{{ form.phone.id_for_label }}">
+                                Phone
+                            </label>
+
+                            {{ form.phone }}
+
+                            {% if form.phone.errors %}
+                            <div class="field-error">
+                                {{ form.phone.errors|first }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.email.id_for_label }}">
+                                Email (Optional)
+                            </label>
+
+                            {{ form.email }}
+
+                            {% if form.email.errors %}
+                            <div class="field-error">
+                                {{ form.email.errors|first }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+                            <label for="{{ form.date.id_for_label }}">
+                                Date
+                            </label>
+
+                            {{ form.date }}
+
+                            {% if form.date.errors %}
+                            <div class="field-error">
+                                {{ form.date.errors|first }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="{{ form.time.id_for_label }}">
+                                Time
+                            </label>
+
+                            <div class="custom-select" id="timeCustomSelect">
+
+                                <button
+                                    type="button"
+                                    class="custom-select-trigger"
+                                    id="timeTrigger">
+
+                                    Select Time
+
+                                </button>
+
+                                <div
+                                    class="custom-select-options"
+                                    id="timeOptions">
+
+                                </div>
+
+                            </div>
+
+                            {{ form.time }}
+
+                            {% if form.time.errors %}
+                            <div class="field-error">
+                                {{ form.time.errors|first }}
+                            </div>
+                            {% endif %}
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="{{ form.party_size.id_for_label }}">
+                                Guests
+                            </label>
+
+                            {{ form.party_size }}
+
+                            {% if form.party_size.errors %}
+                            <div class="field-error">
+                                {{ form.party_size.errors|first }}
+                            </div>
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="{{ form.notes.id_for_label }}">
+                            Notes (Optional)
+                        </label>
+
+                        {{ form.notes }}
+
+                        {% if form.notes.errors %}
+                        <div class="field-error">
+                            {{ form.notes.errors|first }}
+                        </div>
+                        {% endif %}
+
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                        style="width:100%;">
+
+                        Request Table
+
+                    </button>
+
+                </form>
+
+            </div>
+
+            <!-- =========================
+                 Opening Hours
+            ========================== -->
+
+            <div class="hours-card">
+
+                <h2>Opening Hours</h2>
+
+                <div class="hours-divider"></div>
+
+                <div class="hour-row">
+                    <span>Monday</span>
+                    <span>9:00 AM – 11:00 PM</span>
+                </div>
+
+                <div class="hour-row">
+                    <span>Tuesday</span>
+                    <span>9:00 AM – 11:00 PM</span>
+                </div>
+
+                <div class="hour-row">
+                    <span>Wednesday</span>
+                    <span>9:00 AM – 11:00 PM</span>
+                </div>
+
+                <div class="hour-row">
+                    <span>Thursday</span>
+                    <span>9:00 AM – 11:00 PM</span>
+                </div>
+
+                <div class="hour-row">
+                    <span>Friday</span>
+                    <span>9:00 AM – 11:30 PM</span>
+                </div>
+
+                <div class="hour-row">
+                    <span>Saturday</span>
+                    <span>8:30 AM – 11:30 PM</span>
+                </div>
+
+                <div class="hour-row">
+                    <span>Sunday</span>
+                    <span>9:00 AM – 10:30 PM</span>
+                </div>
+
+                <div class="hours-divider"></div>
+
+                <p class="hours-note">
+                    We recommend reserving your table in advance,
+                    especially on weekends and public holidays.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function(){
+
+    const dateInput = document.getElementById("id_date");
+
+    const today = new Date();
+
+    let max = new Date();
+
+    max.setDate(today.getDate() + 2);
+
+    dateInput.min = today.toISOString().split("T")[0];
+
+    dateInput.max = max.toISOString().split("T")[0];
+
+    /* ============================
+       Custom Time Dropdown
+    ============================ */
+
+    const realSelect = document.getElementById("id_time");
+
+    const wrapper = document.getElementById("timeCustomSelect");
+
+    const trigger = document.getElementById("timeTrigger");
+
+    const optionsBox = document.getElementById("timeOptions");
+
+    if(realSelect){
+
+        Array.from(realSelect.options).forEach(function(opt){
+
+            const item = document.createElement("div");
+
+            item.className = "custom-select-option";
+
+            item.textContent = opt.text;
+
+            item.dataset.value = opt.value;
+
+            if(opt.selected){
+
+                item.classList.add("selected");
+
+                trigger.textContent = opt.text;
+
+            }
+
+            item.addEventListener("click", function(){
+
+                realSelect.value = opt.value;
+
+                trigger.textContent = opt.text;
+
+                optionsBox
+                .querySelectorAll(".custom-select-option")
+                .forEach(el => el.classList.remove("selected"));
+
+                item.classList.add("selected");
+
+                wrapper.classList.remove("open");
+
+            });
+
+            optionsBox.appendChild(item);
+
+        });
+
+        trigger.addEventListener("click", function(){
+
+            wrapper.classList.toggle("open");
+
+        });
+
+        document.addEventListener("click", function(e){
+
+            if(!wrapper.contains(e.target)){
+
+                wrapper.classList.remove("open");
+
+            }
+
+        });
+
+    }
+
+});
+
+</script>
+
+{% endblock %}

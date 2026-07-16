@@ -1,0 +1,87 @@
+{% extends "cafe/base.html" %}
+
+{% block title %}My Orders — Copper Kettle{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="section">
+    <h2 class="section-title">My Orders</h2>
+
+    {% if remembered_orders %}
+      <table class="cart-table">
+        <thead>
+          <tr>
+            <th>Order #</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Total</th>
+            <th>Placed</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in remembered_orders %}
+            <tr>
+              <td>#{{ order.id }}</td>
+              <td>{{ order.get_order_type_display }}</td>
+              <td>{{ order.status }}</td>
+              <td>₹{{ order.total_amount }}</td>
+              <td>{{ order.created_at|date:"d M, g:i A" }}</td>
+              <td><a href="{% url 'cafe:order_status' order.id %}" class="cart-btn" style="border-radius:6px; width:auto; padding:6px 14px;">View</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p style="text-align:center; color:var(--muted);">No orders placed from this browser yet.</p>
+    {% endif %}
+
+  </div>
+
+  <div class="section" style="padding-top:0;">
+    <h3 style="text-align:center; margin-bottom:20px;">Look up by phone number</h3>
+
+    <div class="form-card">
+      <form method="get" class="form-row" style="align-items:flex-end;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label for="phone">Phone Number</label>
+          <input type="text" name="phone" id="phone" value="{{ phone_query }}" maxlength="10">
+        </div>
+        <button type="submit" class="btn btn-primary" style="height:42px;">Search</button>
+      </form>
+    </div>
+
+    {% if looked_up_orders is not None %}
+      {% if looked_up_orders %}
+        <table class="cart-table" style="margin-top:24px;">
+          <thead>
+            <tr>
+              <th>Order #</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Total</th>
+              <th>Placed</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in looked_up_orders %}
+              <tr>
+                <td>#{{ order.id }}</td>
+                <td>{{ order.get_order_type_display }}</td>
+                <td>{{ order.status }}</td>
+                <td>₹{{ order.total_amount }}</td>
+                <td>{{ order.created_at|date:"d M, g:i A" }}</td>
+                <td><a href="{% url 'cafe:order_status' order.id %}" class="cart-btn" style="border-radius:6px; width:auto; padding:6px 14px;">View</a></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p style="text-align:center; color:var(--muted); margin-top:20px;">No orders found for that number.</p>
+      {% endif %}
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

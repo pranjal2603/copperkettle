@@ -1,0 +1,73 @@
+{% extends "cafe/base.html" %}
+
+{% block title %}Payment — Copper Kettle{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="section" style="text-align:center;">
+
+    <h2 class="section-title">Complete Payment</h2>
+
+    <div class="form-card" style="text-align:center;">
+
+      <p style="color:var(--muted);">Order #{{ order.id }}</p>
+      <h3 style="margin:12px 0 24px; color:var(--gold);">₹{{ order.total_amount }}</h3>
+
+      <button id="payBtn" class="btn btn-primary">Pay Now</button>
+
+      <p style="font-size:12px; color:var(--muted); margin-top:16px;">
+        You'll be redirected back here automatically after payment.
+      </p>
+
+    </div>
+
+  </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  document.getElementById('payBtn').addEventListener('click', function () {
+    const options = {
+      key: "{{ razorpay_key_id }}",
+      amount: "{{ amount_paise }}",
+      currency: "INR",
+      name: "Copper Kettle Café",
+      description: "Order #{{ order.id }}",
+      order_id: "{{ razorpay_order_id }}",
+      handler: function (response) {
+        fetch("{% url 'cafe:payment_verify' order.id %}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}"
+          },
+          body: JSON.stringify({
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_signature: response.razorpay_signature
+          })
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              window.location.href = data.redirect_url;
+            } else {
+              alert("Payment verification failed. Please contact the café.");
+            }
+          });
+      },
+      prefill: {
+        name: "{{ order.customer_name }}",
+        contact: "{{ order.phone }}",
+        email: "{{ order.email }}"
+      },
+      theme: {
+        color: "#3c2617"
+      }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
+  });
+</script>
+{% endblock %}

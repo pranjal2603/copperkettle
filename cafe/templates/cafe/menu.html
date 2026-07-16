@@ -1,0 +1,128 @@
+{% extends "cafe/base.html" %}
+
+{% block title %}Menu — Copper Kettle{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="section">
+    <h2 class="section-title">Our Menu</h2>
+
+    {% for category in categories %}
+      <div class="menu-category" id="cat-{{ category.id }}"> 
+        <h3>{{ category.name }}</h3>
+
+        <div class="menu-grid">
+          {% for item in category.items.all %}
+
+<div class="menu-item">
+
+    <div class="menu-item-thumb">
+        {% if item.image %}
+            <img src="{{ item.image.url }}" alt="{{ item.name }}" loading="lazy">
+        {% else %}
+            <div class="menu-item-thumb-placeholder">
+                <i class="fa-solid fa-mug-hot"></i>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="menu-item-info">
+
+        <span class="menu-item-name">
+            <span class="veg-dot {% if item.is_veg %}veg{% else %}non-veg{% endif %}"></span>
+            {{ item.name }}
+        </span>
+
+        {% if item.description %}
+            <div class="menu-item-desc">{{ item.description }}</div>
+        {% endif %}
+
+        <span class="menu-item-price">₹{{ item.price }}</span>
+
+    </div>
+
+    <div class="menu-item-action">
+        {% if item.available %}
+            <a href="{% url 'cafe:cart_add' item.id %}"
+               class="menu-item-add"
+               data-id="{{ item.id }}"
+               aria-label="Add {{ item.name }} to cart">
+                <i class="fa-solid fa-plus"></i>
+            </a>
+        {% else %}
+            <span class="menu-item-add menu-item-add-disabled" aria-label="Out of stock">
+                <i class="fa-solid fa-ban"></i>
+            </span>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endfor %}
+        </div>
+
+      </div>
+
+    {% empty %}
+
+      <p style="text-align:center;color:var(--muted);">
+
+        Menu categories will appear here once added in the admin panel.
+
+      </p>
+
+    {% endfor %}
+
+  </div>
+</div>
+
+
+<script>
+document.addEventListener('click', function (e) {
+  const link = e.target.closest('.menu-item-add:not(.menu-item-add-disabled)');
+  if (!link) return;
+
+  e.preventDefault();
+
+  fetch(link.href, {
+    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        const cartCount = document.querySelector('.cart-count');
+        if (cartCount) cartCount.textContent = data.count;
+
+        Swal.fire({
+          icon: 'success',
+          title: data.message,
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 1500
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: data.message,
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 1800
+        });
+      }
+    })
+    .catch(() => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Something went wrong. Please try again.',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1800
+      });
+    });
+});
+</script>
+
+{% endblock %}

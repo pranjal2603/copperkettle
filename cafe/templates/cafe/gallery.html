@@ -1,0 +1,33 @@
+{% extends "cafe/base.html" %}
+
+{% block title %}Gallery — Copper Kettle{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="section">
+    <span class="kicker">A peek inside</span>
+    <h2 class="section-title" style="text-align:left;">Gallery</h2>
+    <p class="section-subtitle" style="text-align:left; max-width:600px;">
+      Moments brewed, baked, and shared — a glimpse of life at Copper Kettle.
+    </p>
+
+    <div class="gallery-full">
+      {% for image in images %}
+        <div class="gallery-item" onclick="openLightbox('{{ image.image.url }}', '{{ image.caption|escapejs }}')">
+          <img src="{{ image.image.url }}" alt="{{ image.caption }}" loading="lazy">
+          <div class="gallery-overlay">
+            
+            {% if image.caption %}
+              <span class="gallery-caption">{{ image.caption }}</span>
+            {% endif %}
+          </div>
+        </div>
+      {% empty %}
+        <div class="placeholder"></div>
+        <div class="placeholder"></div>
+        <div class="placeholder"></div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

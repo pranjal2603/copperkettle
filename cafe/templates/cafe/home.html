@@ -1,0 +1,183 @@
+{% extends "cafe/base.html" %}
+{% load static %}
+
+{% block title %}Copper Kettle — Coffee, slowed down{% endblock %}
+
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+<div class="hero" style="background-image: url('{% static "images/cozy-coffee-corner-stockcake.jpg" %}');">
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="eyebrow">Since the first pour</div>
+    <h1>Coffee, slowed down</h1>
+    <p>Single-origin beans, hand-plated food, and a room built for lingering.</p>
+    <a href="{% url 'cafe:reserve' %}" class="btn btn-primary">Reserve a table</a>
+  </div>
+</div>
+
+<div class="gallery-strip">
+  {% for image in gallery_preview %}
+    <img src="{{ image.image.url }}" alt="{{ image.caption }}" loading="lazy">
+  {% empty %}
+    <div class="placeholder"></div>
+    <div class="placeholder"></div>
+    <div class="placeholder"></div>
+  {% endfor %}
+</div>
+
+<div class="container">
+  <div class="section">
+    <div class="story-wrap">
+      <div>
+        <span class="kicker">Est. — Pune</span>
+        <h2 class="story-title">Our Story</h2>
+      </div>
+      <p class="story-text">
+        <span class="drop-cap">I</span>n a world that never stops moving, Copper Kettle offers something rare —
+        a moment to pause. Here, every cup is brewed with patience, every dish is prepared with
+        intention, and every corner is designed to make you feel at ease.
+        <br><br>
+        Whether you're starting your morning, sharing laughter with friends,
+        or finding inspiration over a quiet coffee, we invite you to slow down,
+        stay awhile, and make yourself at home.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="steam-divider" aria-hidden="true">
+  <svg viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M4 30c8 0 8-10 16-10s8 10 16 10 8-10 16-10 8 10 16 10 8-10 16-10 8 10 16 10 8-10 16-10 8 10 16 10" stroke="var(--gold)" stroke-width="1.4" stroke-linecap="round"/>
+  </svg>
+</div>
+
+<div class="container">
+  <div class="section">
+    <span class="kicker">Handpicked favourites</span>
+    <h2 class="section-title" style="text-align:left; margin-bottom: 8px;">Signature menu</h2>
+    <p style="color: var(--muted); font-size: 14px; margin: 0 0 8px;">The dishes and drinks our regulars keep coming back for.</p>
+    <div class="signature-list">
+      {% for item in signature_items %}
+        <div class="signature-item">
+          <div class="signature-item-thumb">
+            {% if item.image %}
+              <img src="{{ item.image.url }}" alt="{{ item.name }}" loading="lazy">
+            {% else %}
+              <div class="signature-item-thumb-placeholder"><i class="fa-solid fa-mug-hot"></i></div>
+            {% endif %}
+          </div>
+          <div class="signature-item-body">
+            <div class="signature-item-top">
+              <span class="signature-item-name">
+                <span class="veg-dot {% if item.is_veg %}veg{% else %}non-veg{% endif %}"></span>{{ item.name }}
+              </span>
+              <span class="signature-item-price">₹{{ item.price }}</span>
+            </div>
+            <div class="signature-item-desc">{{ item.description }}</div>
+          </div>
+        </div>
+      {% empty %}
+        <p style="color: var(--muted); font-size: 14px; padding: 24px 0;">Signature items will appear here once added in the admin panel.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="section">
+    <span class="kicker">The Copper Kettle difference</span>
+    <h2 class="section-title" style="text-align:left;">Why choose us</h2>
+    <p class="section-subtitle" style="text-align:left; max-width:600px;">
+      Four reasons regulars keep coming back — and first-timers become regulars.
+    </p>
+
+    <div class="features-grid">
+
+      <div class="feature-card">
+        <div class="feature-icon">☕</div>
+        <span class="feature-number">01</span>
+        <h3>Freshly Brewed Coffee</h3>
+        <p>Single-origin beans, roasted in small batches, brewed to order — never sitting, never stale.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🍰</div>
+        <span class="feature-number">02</span>
+        <h3>Handmade Desserts</h3>
+        <p>Cakes and pastries baked fresh every morning, from scratch, with ingredients we'd be proud to serve at home.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🌿</div>
+        <span class="feature-number">03</span>
+        <h3>Cozy Ambience</h3>
+        <p>Warm lighting, soft seating, and the kind of quiet hum that's perfect for deep work or deeper conversations.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📶</div>
+        <span class="feature-number">04</span>
+        <h3>Free Wi-Fi</h3>
+        <p>Fast, reliable, and always on — because your laptop shouldn't have to compete with your coffee for attention.</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="stats-band">
+  <div class="stats-grid">
+    <div class="stat">
+      <h3>2500+</h3>
+      <p>Happy Guests</p>
+    </div>
+    <div class="stat">
+      <h3>40+</h3>
+      <p>Coffee &amp; Beverages</p>
+    </div>
+    <div class="stat">
+      <h3>12</h3>
+      <p>Signature Specials</p>
+    </div>
+    <div class="stat">
+      <h3>4.9★</h3>
+      <p>Customer Rating</p>
+    </div>
+  </div>
+</div>
+
+{% if top_reviews %}
+  <div class="container">
+    <div class="section">
+      <span class="kicker">Kind words</span>
+      <h2 class="section-title" style="text-align:left;">What guests are saying</h2>
+      <div class="testimonial-grid">
+        {% for review in top_reviews %}
+          <div class="testimonial-card">
+            <div class="testimonial-stars" aria-label="{{ review.rating }} out of 5 stars">
+              {% for i in "12345" %}{% if forloop.counter <= review.rating %}&#9733;{% else %}&#9734;{% endif %}{% endfor %}
+            </div>
+            <p class="testimonial-comment">&ldquo;{{ review.comment }}&rdquo;</p>
+            <div class="testimonial-name">{{ review.reviewer_name }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+<div class="container">
+  <div class="section" style="padding-top: 0;">
+    <div class="cta-banner">
+      <div>
+        <h3>Table for two, tonight?</h3>
+        <p>Open until 11pm, walk-ins welcome.</p>
+      </div>
+      <a href="{% url 'cafe:reserve' %}" class="btn btn-primary">Book now</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

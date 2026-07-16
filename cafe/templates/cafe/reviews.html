@@ -1,0 +1,94 @@
+{% extends "cafe/base.html" %}
+
+{% block title %}Reviews — Copper Kettle{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="section">
+    <h2 class="section-title">What guests are saying</h2>
+
+    <div class="testimonial-grid">
+      {% for review in reviews %}
+        <div class="testimonial-card">
+          <div class="testimonial-stars">
+            {% for i in "12345" %}
+              <span class="star {% if forloop.counter <= review.rating %}filled{% endif %}">&#9733;</span>
+            {% endfor %}
+          </div>
+          <p class="testimonial-comment">&ldquo;{{ review.comment }}&rdquo;</p>
+          <div class="testimonial-name">{{ review.reviewer_name }}</div>
+        </div>
+      {% empty %}
+        <p style="color: var(--muted); font-size: 14px;">No reviews yet — be the first to share your experience.</p>
+      {% endfor %}
+    </div>
+
+    <h2 class="section-title">Leave a review</h2>
+    <form method="post" class="form-card">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="form-errors">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <div class="form-group">
+        <label for="{{ form.reviewer_name.id_for_label }}">Name</label>
+        {{ form.reviewer_name }}
+        {% if form.reviewer_name.errors %}<div class="field-error">{{ form.reviewer_name.errors|first }}</div>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label>Rating</label>
+        <div class="star-picker" id="star-picker">
+          {% for i in "12345" %}
+            <span class="star-input" data-value="{{ forloop.counter }}">&#9733;</span>
+          {% endfor %}
+        </div>
+        {{ form.rating }}
+        {% if form.rating.errors %}<div class="field-error">{{ form.rating.errors|first }}</div>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.comment.id_for_label }}">Your experience</label>
+        {{ form.comment }}
+        {% if form.comment.errors %}<div class="field-error">{{ form.comment.errors|first }}</div>{% endif %}
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%;">Submit review</button>
+    </form>
+  </div>
+</div>
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const picker = document.getElementById('star-picker');
+  const stars = picker.querySelectorAll('.star-input');
+  const hiddenInput = document.getElementById('id_rating');
+
+  function paint(value) {
+    stars.forEach(function (star) {
+      const starValue = parseInt(star.dataset.value, 10);
+      star.classList.toggle('active', starValue <= value);
+    });
+  }
+
+  stars.forEach(function (star) {
+    star.addEventListener('click', function () {
+      const value = parseInt(star.dataset.value, 10);
+      hiddenInput.value = value;
+      paint(value);
+    });
+
+    star.addEventListener('mouseenter', function () {
+      paint(parseInt(star.dataset.value, 10));
+    });
+  });
+
+  picker.addEventListener('mouseleave', function () {
+    paint(parseInt(hiddenInput.value, 10) || 0);
+  });
+});
+</script>
+{% endblock %}
