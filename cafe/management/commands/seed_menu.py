@@ -10,11 +10,19 @@ from cafe.models import MenuCategory, MenuItem
 def attach_image(item, filename):
     image_path = Path(settings.MEDIA_ROOT) / "menu" / filename
 
-    if image_path.exists():
-        with open(image_path, "rb") as f:
-            item.image.save(filename, File(f), save=True)
-    else:
-        print(f"   ! Image not found: {image_path}")
+    if not image_path.exists():
+        print(f"❌ Image not found: {image_path}")
+        return
+
+    with image_path.open("rb") as f:
+        item.image.save(
+            image_path.name,
+            File(f),
+            save=False,
+        )
+
+    item.save(update_fields=["image"])
+    print(f"🖼 Uploaded {filename}")
 
 
 class Command(BaseCommand):
@@ -245,14 +253,23 @@ class Command(BaseCommand):
                     },
                 )
 
+                # Update existing fields every time
+                obj.description = item["description"]
+                obj.price = item["price"]
+                obj.is_veg = item["veg"]
+                obj.is_signature = item["signature"]
+                obj.available = True
+                obj.save()
+
+                # Upload/update image every time
                 image_filename = item.get("image")
-                if image_filename and not obj.image:
+                if image_filename:
                     attach_image(obj, image_filename)
 
                 if created:
                     self.stdout.write(f"   ✓ Added {obj.name}")
                 else:
-                    self.stdout.write(f"   • Exists {obj.name}")
+                    self.stdout.write(f"   ↻ Updated {obj.name}")
 
         self.stdout.write(
             self.style.SUCCESS("\nCopper Kettle menu seeded successfully!")
