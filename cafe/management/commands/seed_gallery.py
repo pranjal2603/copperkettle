@@ -8,7 +8,10 @@ from cafe.models import GalleryImage
 
 
 class Command(BaseCommand):
-    help = "Upload gallery images to Cloudinary and create/update GalleryImage records."
+    help = (
+        "Upload gallery images to Cloudinary without creating duplicates "
+        "or overwriting custom captions."
+    )
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -37,8 +40,7 @@ class Command(BaseCommand):
         )
 
         files = sorted(
-            f
-            for f in os.listdir(folder)
+            f for f in os.listdir(folder)
             if f.lower().endswith(valid_extensions)
         )
 
@@ -48,49 +50,71 @@ class Command(BaseCommand):
             )
             return
 
-        for index, filename in enumerate(files):
+        for order, filename in enumerate(files):
 
             filepath = os.path.join(folder, filename)
 
-            caption = (
+            relative_path = f"gallery/{filename}"
+
+            default_caption = (
                 os.path.splitext(filename)[0]
                 .replace("_", " ")
                 .replace("-", " ")
                 .title()
             )
 
-            image_obj, created = GalleryImage.objects.get_or_create(
-                caption=caption,
-                defaults={
-                    "order": index,
-                },
-            )
+            # -------------------------------------------------
+            # Find existing image by original filename
+            # -------------------------------------------------
 
-            image_obj.order = index
+            image_obj = None
 
-            with open(filepath, "rb") as image_file:
-                image_obj.image.save(
-                    filename,
-                    File(image_file),
-                    save=False,
-                )
+            for obj in GalleryImage.objects.all():
+                existing_name = os.path.basename(obj.image.name)
+
+                # Remove Cloudinary unique suffix before comparison
+                base_existing = os.path.splitext(existing_name)[0].split("_")[0]
+                base_current = os.path.splitext(filename)[0].split("_")[0]
+
+                if base_existing == base_current:
+                    image_obj = obj
+                    break
+
+            created = False
+
+            if image_obj is None:
+                image_obj = GalleryImage()
+                created = True
+
+            image_obj.order = order
+
+            # Preserve custom caption
+            if not image_obj.caption:
+                image_obj.caption = default_caption
+
+            # Upload only if image doesn't exist
+            if created or not image_obj.image:
+
+                with open(filepath, "rb") as image_file:
+                    image_obj.image.save(
+                        filename,
+                        File(image_file),
+                        save=False,
+                    )
 
             image_obj.save()
 
             if created:
                 self.stdout.write(
-                    self.style.SUCCESS(
-                        f"✓ Uploaded {filename}"
-                    )
+                    self.style.SUCCESS(f"✓ Added {filename}")
                 )
             else:
                 self.stdout.write(
-                    self.style.WARNING(
-                        f"↻ Updated {filename}"
-                    )
+                    self.style.WARNING(f"↻ Exists {filename}")
                 )
+
         self.stdout.write(
             self.style.SUCCESS(
-                "\nGallery uploaded successfully to Cloudinary!"
+                "\nGallery synced successfully!"
             )
         )
