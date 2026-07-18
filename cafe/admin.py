@@ -212,7 +212,10 @@ class OrderItemInline(admin.TabularInline):
     readonly_fields = ("menu_item", "quantity", "price", "subtotal")
 
     def subtotal(self, obj):
-        return obj.subtotal()
+        try:
+            return obj.subtotal()
+        except (TypeError, AttributeError):
+            return "—"  # Display a dash if price or quantity is missing
 
 
 @admin.register(Order)

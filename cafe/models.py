@@ -235,4 +235,6 @@ class OrderItem(models.Model):
     )
 
     def subtotal(self):
+        if self.price is None:
+            return None
         return self.price * self.quantity

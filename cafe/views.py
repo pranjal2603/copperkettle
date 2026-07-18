@@ -251,6 +251,10 @@ def checkout(request):
             )
 
             for cart_item in cart:
+                # Skip items with missing or invalid prices (corrupted cart data)
+                if cart_item.get("price") is None or cart_item.get("item") is None:
+                    continue
+                
                 OrderItem.objects.create(
                     order=order,
                     menu_item=cart_item["item"],
