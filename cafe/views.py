@@ -169,14 +169,12 @@ def cart_add(request, item_id):
 
 
 def cart_clear(request):
-
+   
     cart = Cart(request)
-
+ 
     cart.clear()
-
-    return JsonResponse({
-        "success": True
-    })
+ 
+    return redirect("cafe:cart")
 
 
 def cart_increase(request, item_id):
